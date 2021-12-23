@@ -1,0 +1,21 @@
+[submodule "submodules/AD9834"]
+	path = submodules/AD9834
+	url = https://github.com/AliBarber/AD9834.git
+[submodule "submodules/WSPRLite"]
+	path = submodules/WSPRLite
+	url = https://github.com/AliBarber/WSPRLite.git
+[submodule "submodules/SPI"]
+	path = submodules/SPI
+	url = https://github.com/PaulStoffregen/SPI.git
+[submodule "submodules/Adafruit_SSD1306"]
+	path = submodules/Adafruit_SSD1306
+	url = https://github.com/adafruit/Adafruit_SSD1306
+[submodule "submodules/Adafruit-BusIO"]
+	path = submodules/Adafruit-BusIO
+	url = https://github.com/adafruit/Adafruit_BusIO
+[submodule "submodules/Adafruit-GFX-Library"]
+	path = submodules/Adafruit-GFX-Library
+	url = https://github.com/adafruit/Adafruit-GFX-Library
+[submodule "submodules/NeoGPS"]
+	path = submodules/NeoGPS
+	url = https://github.com/SlashDevin/NeoGPS
