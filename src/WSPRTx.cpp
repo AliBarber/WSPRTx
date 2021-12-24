@@ -7,9 +7,17 @@
 
 #include "Maidenhead.h"
 
-#define CENTRE_FREQ 14097100
+#define CENTRE_FREQ_20M 14097100
+#define CENTRE_FREQ_40M 7040000
 #define PA_RELAY_PIN 21
 #define BUTTON_PIN 6
+
+#define BAND_40M
+// #define BAND_20M
+
+#if defined(BAND_20M) && defined(BAND_40M)
+#error Choose a band!
+#endif
 
 using namespace wsprlite;
 
@@ -28,13 +36,18 @@ Adafruit_SSD1306 disp;
 char locator_as_str[10];
 AD9834 *dds;
 IntervalTimer rtcUpdateTimer, advanceSymbolTimer;
-long transmission_base_freq = CENTRE_FREQ;
+#ifdef BAND_40M
+long transmission_base_freq = CENTRE_FREQ_40M;
+#else
+long transmission_base_freq = CENTRE_FREQ_20M;
+#endif
+
 int tx_count;
 
 bool _mock_pps = false;
 
-// On the centre freq
-const uint16_t SYMBOL_FREQ_LUT_CENTRE[4][2] = {
+// 20M
+const uint16_t SYMBOL_FREQ_LUT_CENTRE_20M[4][2] = {
   {3079,9866},
   {3079,9869},
   {3079,9876},
@@ -44,9 +57,9 @@ const uint16_t SYMBOL_FREQ_LUT_CENTRE[4][2] = {
 // 40M
 const uint16_t SYMBOL_FREQ_LUT_CENTRE_40M[4][2] = {
   {1537,15828},
-{1537,15831},
-{1537,15838},
-{1537,15842}
+  {1537,15831},
+  {1537,15838},
+  {1537,15842}
 };
 
 inline void updateRTC(){
@@ -77,30 +90,27 @@ void setup() {
   disp.setCursor(0,0);
   disp.println("OH2XAB");
   disp.display();
-  Serial.begin(9600);
+
+  // GPS
   Serial1.begin(9600);
 
   rtcUpdateTimer.priority(255);
-//  rtcUpdateTimer.begin(pps_handler, 1000000);
   rtcUpdateTimer.begin(updateRTC, 5000000);
 
   advanceSymbolTimer.priority(128);
   check_gps_flag = true;
   locator_as_str[0] = '\0';
-//  locator_as_str[0] = 'I';
-//  locator_as_str[1] = 'O';
-//  locator_as_str[2] = '9';
-//  locator_as_str[3] = '4';
-//  locator_as_str[4] = '\0';
   attachInterrupt(2,pps_handler,FALLING);
 
-  dds->update_freq(14000000);  
-//  setTime(22, 3, 00, 21, 12, 2021);
   valid_clock = false;
 }
 
 const uint16_t* wspr_freq_reg_for_symbol(unsigned short symbol){
+  #ifdef BAND_40M
   return SYMBOL_FREQ_LUT_CENTRE_40M[symbol];
+  #else
+  return SYMBOL_FREQ_LUT_CENTRE_20M[symbol];
+  #endif 
 }
 
 void loop() { 
@@ -113,7 +123,6 @@ void loop() {
     else{
       is_transmitting_flag = false;
       digitalWriteFast(PA_RELAY_PIN, HIGH);
-      dds->update_freq(140000000);
       advanceSymbolTimer.end();
     }
   }
